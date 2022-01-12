@@ -20,16 +20,14 @@ parser = ArgumentParser()
 # The idea here is to save the automatic first frame inside the folder of the dataset
 parser.add_argument('--real_path', default='../DAVIS/2017/trainval')
 parser.add_argument('--pred_path', default='../DAVIS/2017/trainval')
-parser.add_argument('--output_path', default='../metric_results')
-parser.add_argument('--seg_algo', options='swin-transformer / mask-r-cnn / detectron2', default='detectron2')
-parser.add_argument('--limit_annotations', options='True / False', default=True)
-parser.add_argument('--threshold', options='interval [0,1]', default=0.7)
+parser.add_argument('--seg_algo', help='swin-transformer / mask-r-cnn / detectron2', default='detectron2')
+parser.add_argument('--limit_annotations', help='True / False', default=True)
+parser.add_argument('--threshold', help='interval [0,1]', default=0.7)
 
 args = parser.parse_args()
 
 imgs_path = args.real_path
 pred_path = args.pred_path
-out_path = args.output_path
 seg_algo = args.seg_algo
 limit_annotations = args.limit_annotations
 threshold = args.threshold
@@ -50,7 +48,7 @@ if not path.exists(pred_path):
     os.makedirs(path.join(pred_path, '480p'))
 
 pred_path = path.join(pred_path, '480p')
-anns_path = path.join(imgs_path, '480p', 'Annotations')
+anns_path = path.join(imgs_path, 'Annotations', '480p')
 
 # TODO: 480p or 1080p ???
 imgs_path = path.join(imgs_path, 'JPEGImages', '480p')
@@ -68,12 +66,13 @@ print('Segmenting first frames...')
 get_palette = True
 
 for vid in vid_list:
+    print("Processing " + vid + "!")
     # Find paths for the first frame and the annotations
     pred_vid = path.join(pred_path, vid)
 
     # Find where to save the annotations calculated by the chosen algorithm
-    img_path = path.join(imgs_path, vid)
-    ann_path = path.join(anns_path, vid)
+    img_path = path.join(imgs_path, vid, '00000.jpg')
+    ann_path = path.join(anns_path, vid, '00000.png')
 
     if not path.exists(pred_vid):
         os.makedirs(pred_vid)
@@ -97,6 +96,6 @@ for vid in vid_list:
     # Save the first frame into the folder
     mask = Image.fromarray(masks_arr).convert("P")
     mask.putpalette(palette)
-    mask.save('test.png')
+    mask.save(path.join(pred_vid, '00000.png'))
 
 print('Finished!')

@@ -51,7 +51,7 @@ def get_arr_from_bools(annotations):
     """
     img_arr = np.zeros(annotations.shape[1:])
     for i in range(len(annotations)-1, -1, -1):
-        img_arr[annotations[i].cpu().numpy()] = i + 1
+        img_arr[annotations[i]] = i + 1
 
     return img_arr
 
@@ -79,7 +79,7 @@ def get_mask_detectron2(orig_img, gd_annotations, threshold,
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
     predictor = DefaultPredictor(cfg)
     
-    masks = predictor(orig_img)["instances"].pred_masks
+    masks = predictor(orig_img)["instances"].pred_masks.cpu().numpy()
 
     if limit_annotations:
         masks = get_less_annotations(gd_annotations, masks, threshold)
