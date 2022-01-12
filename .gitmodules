@@ -1,0 +1,3 @@
+[submodule "code/STCN"]
+	path = code/STCN
+	url = https://github.com/aliciafmachado/STCN.git
