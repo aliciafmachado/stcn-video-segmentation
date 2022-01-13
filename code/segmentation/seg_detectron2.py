@@ -24,15 +24,26 @@ def get_less_annotations(gd_annotations, new_annotations, threshold=0.7):
     less_annotations: new annotations but with less objects trying to mimic
                       ground truth annotations
   """
+  # We get the number of annotations from tehe ground truth so that we don't
+  # take more annotations then the manual annotated ones
+  nb_annotations = gd_annotations.max()
+  nb_new_annotations = 0
+
   bool_gd = gd_annotations.astype(bool)
   idxs_to_del = []
 
   for i in range(new_annotations.shape[0]):
+    if nb_new_annotations == nb_annotations:
+      idxs_to_del.extend(list(range(i, new_annotations.shape[0])))
+      break
+
     total = np.sum(new_annotations[i,:,:].astype(int))
     intersection = np.sum(np.logical_and(bool_gd,
                                       new_annotations[i,:,:]).astype(int))
     if intersection / total < threshold:
       idxs_to_del.append(i)
+    else:
+      nb_new_annotations += 1
   
   less_annotations = np.delete(new_annotations, idxs_to_del, axis=0)
 
