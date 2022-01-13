@@ -1,3 +1,6 @@
 [submodule "code/STCN"]
 	path = code/STCN
 	url = https://github.com/aliciafmachado/STCN.git
+[submodule "code/davis2017-evaluation"]
+	path = code/davis2017-evaluation
+	url = https://github.com/aliciafmachado/davis2017-evaluation.git
