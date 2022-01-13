@@ -23,6 +23,7 @@ parser.add_argument('--pred_path', default='../DAVIS/2017/trainval')
 parser.add_argument('--seg_algo', help='swin-transformer / mask-r-cnn / detectron2', default='detectron2')
 parser.add_argument('--limit_annotations', help='True / False', default=True)
 parser.add_argument('--threshold', help='interval [0,1]', default=0.7)
+parser.add_argument('--dataset', help= 'davis2017 or davis2016', default='davis2017')
 
 args = parser.parse_args()
 
@@ -31,6 +32,7 @@ pred_path = args.pred_path
 seg_algo = args.seg_algo
 limit_annotations = args.limit_annotations
 threshold = args.threshold
+dataset = args.dataset
 
 get_masks = {
     'detectron2': get_mask_detectron2,
@@ -85,17 +87,21 @@ for vid in vid_list:
     orig_img = cv2.imread(img_path)
 
     # We only need to take the palette once
-    if get_palette:
-        palette = palette = Image.open(path.expanduser(ann_path)).getpalette()
+    if get_palette and dataset == 'davis2017':
+        palette = Image.open(path.expanduser(ann_path)).getpalette()
+        print(palette)
+        print(ann_path)
         get_palette = False
 
     # Do the prediction using the algorithm selected
     masks_arr = get_masks[seg_algo](orig_img, gd_annotations, threshold=threshold, 
-                                    limit_annotations=limit_annotations)
+                                    limit_annotations=limit_annotations, dataset=dataset)
 
     # Save the first frame into the folder
     mask = Image.fromarray(masks_arr).convert("P")
-    mask.putpalette(palette)
+    if dataset == 'davis_2017':
+      mask.putpalette(palette)
+
     mask.save(path.join(pred_vid, '00000.png'))
 
 print('Finished!')

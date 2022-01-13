@@ -12,7 +12,8 @@ from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 
-def get_less_annotations(gd_annotations, new_annotations, threshold=0.7):
+def get_less_annotations(gd_annotations, new_annotations, threshold=0.7, 
+                         dataset='davis2017'):
   """
   Returns the annotations that identify the same objects as the true
   annotations.
@@ -20,12 +21,16 @@ def get_less_annotations(gd_annotations, new_annotations, threshold=0.7):
     gd_annotations: ground truth annotations on the data
     new_annotations: new annotations using segmentation algorithm
     threshold: float between 0 and 1
+    dataset: (string) indicates which davis dataset
   Returns:
     less_annotations: new annotations but with less objects trying to mimic
                       ground truth annotations
   """
   # We get the number of annotations from tehe ground truth so that we don't
   # take more annotations then the manual annotated ones
+  if dataset == 'davis2016':
+    gd_annotations[gd_annotations == 256] = 1
+  
   nb_annotations = gd_annotations.max()
   nb_new_annotations = 0
 
@@ -40,6 +45,7 @@ def get_less_annotations(gd_annotations, new_annotations, threshold=0.7):
     total = np.sum(new_annotations[i,:,:].astype(int))
     intersection = np.sum(np.logical_and(bool_gd,
                                       new_annotations[i,:,:]).astype(int))
+
     if intersection / total < threshold:
       idxs_to_del.append(i)
     else:
@@ -50,25 +56,30 @@ def get_less_annotations(gd_annotations, new_annotations, threshold=0.7):
   return less_annotations
 
 
-def get_arr_from_bools(annotations):
+def get_arr_from_bools(annotations, dataset='davis2017'):
     """
     Functions that gets the array of integers representing the
     masks from the annotations.
     Args:
         annotations: (N_objects, H, W) tensor containing annotations from segmentation
                                         algorithm
+        dataset: (string) which davis dataset
     Returns:
         img_arr: (H, W) array of integers showing to which class each pixel is from
     """
     img_arr = np.zeros(annotations.shape[1:])
-    for i in range(len(annotations)-1, -1, -1):
+
+    if dataset == 'davis2017':
+      for i in range(len(annotations)-1, -1, -1):
         img_arr[annotations[i]] = i + 1
+    else:
+      img_arr[annotations[0]] = 255
 
     return img_arr
 
 
 def get_mask_detectron2(orig_img, gd_annotations, threshold, 
-                                    limit_annotations):
+                                    limit_annotations, dataset):
     """
     Function that calls detectron2 to segmentate the first frame of a video.
     Args:
@@ -76,6 +87,8 @@ def get_mask_detectron2(orig_img, gd_annotations, threshold,
         gd_annotations: (H, W)
         threshold: float
         limit_annotations: bool
+        dataset: (string) indicates which davis dataset we are
+          working with.
     Returns:
         auto_mask: (H, W)
     """
@@ -93,7 +106,7 @@ def get_mask_detectron2(orig_img, gd_annotations, threshold,
     masks = predictor(orig_img)["instances"].pred_masks.cpu().numpy()
 
     if limit_annotations:
-        masks = get_less_annotations(gd_annotations, masks, threshold)
+        masks = get_less_annotations(gd_annotations, masks, threshold, dataset)
     
-    auto_mask = get_arr_from_bools(masks)
+    auto_mask = get_arr_from_bools(masks, dataset)
     return auto_mask
