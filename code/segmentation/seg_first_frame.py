@@ -25,6 +25,7 @@ parser.add_argument('--max_nb_objects', type=int,
                     default=-1)
 parser.add_argument('--threshold', help='interval [0,1]', default=0.7)
 parser.add_argument('--dataset', help= 'davis2017 or davis2016 or smth-smth', default='davis2017')
+parser.add_argument('--palette_path', help='path to an image to extract the palette', default=None)
 
 args = parser.parse_args()
 
@@ -61,7 +62,7 @@ if dataset == 'davis2016' or dataset == 'davis2017':
     imgs_path = path.join(imgs_path, 'JPEGImages', '480p')
 
 # We take the list of videos
-vid_list = [video for video in sorted(os.listdir(imgs_path)) if video.endswith('.jpg')]
+vid_list = [video for video in sorted(os.listdir(imgs_path)) if not video.startswith('.')]
 
 print('Segmenting first frames...')
 
@@ -98,6 +99,11 @@ for vid in vid_list:
         palette = Image.open(path.expanduser(ann_path)).getpalette()
         get_palette = False
 
+    if dataset == 'smth-smth' and get_palette:
+      if args.palette_path == None:
+         # TODO(fix here)
+         # TODO(put default behavior to do masking as davis2016)
+
     # Do the prediction using the algorithm selected
     masks_arr = get_masks[seg_algo](orig_img, gd_annotations, threshold=threshold, 
                                     limit_annotations=limit_annotations, dataset=dataset,
@@ -105,8 +111,10 @@ for vid in vid_list:
 
     # Save the first frame into the folder
     mask = Image.fromarray(masks_arr).convert("P")
-    if dataset == 'davis_2017':
+    if dataset == 'davis2017':
         mask.putpalette(palette)
+    elif dataset == 'smth-smth':
+        mask.convert()
     
     mask.save(path.join(pred_vid, '00000.png'))
 

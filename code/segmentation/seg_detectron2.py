@@ -69,7 +69,7 @@ def get_arr_from_bools(annotations, dataset='davis2017'):
     """
     img_arr = np.zeros(annotations.shape[1:])
 
-    if dataset == 'davis2017':
+    if dataset == 'davis2017' or dataset == 'smth-smth':
       for i in range(len(annotations)-1, -1, -1):
         img_arr[annotations[i]] = i + 1
     else:
@@ -110,8 +110,8 @@ def get_mask_detectron2(orig_img, gd_annotations, threshold,
         masks = masks[:max_nb_objects]
     
     elif limit_annotations:
-        masks = get_less_annotations(gd_annotations, masks, threshold, dataset, 
-                                     max_nb_objects)
+        masks = get_less_annotations(gd_annotations, masks, threshold, dataset)
     
     auto_mask = get_arr_from_bools(masks, dataset)
+    
     return auto_mask
