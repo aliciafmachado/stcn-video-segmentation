@@ -16,14 +16,13 @@ import cv2
 Arguments loading
 """
 parser = ArgumentParser()
-# TODO: take dataset into consideration
 # The idea here is to save the automatic first frame inside the folder of the dataset
 parser.add_argument('--real_path', default='../DAVIS/2017/trainval')
 parser.add_argument('--pred_path', default='../DAVIS/2017/trainval')
 parser.add_argument('--seg_algo', help='swin-transformer / mask-r-cnn / detectron2', default='detectron2')
 parser.add_argument('--limit_annotations', help='True / False', default=True)
 parser.add_argument('--threshold', help='interval [0,1]', default=0.7)
-parser.add_argument('--dataset', help= 'davis2017 or davis2016', default='davis2017')
+parser.add_argument('--dataset', help= 'davis2017 or davis2016 or smth-smth', default='davis2017')
 
 args = parser.parse_args()
 
