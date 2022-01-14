@@ -79,7 +79,7 @@ def get_arr_from_bools(annotations, dataset='davis2017'):
 
 
 def get_mask_detectron2(orig_img, gd_annotations, threshold, 
-                                    limit_annotations, dataset):
+                                    limit_annotations, dataset, max_nb_objects):
     """
     Function that calls detectron2 to segmentate the first frame of a video.
     Args:
@@ -89,6 +89,7 @@ def get_mask_detectron2(orig_img, gd_annotations, threshold,
         limit_annotations: bool
         dataset: (string) indicates which davis dataset we are
           working with.
+        max_nb_objects: (int) indicates maximum number of objects
     Returns:
         auto_mask: (H, W)
     """
@@ -105,8 +106,12 @@ def get_mask_detectron2(orig_img, gd_annotations, threshold,
     
     masks = predictor(orig_img)["instances"].pred_masks.cpu().numpy()
 
-    if limit_annotations:
-        masks = get_less_annotations(gd_annotations, masks, threshold, dataset)
+    if max_nb_objects > 0:
+        masks = masks[:max_nb_objects]
+    
+    elif limit_annotations:
+        masks = get_less_annotations(gd_annotations, masks, threshold, dataset, 
+                                     max_nb_objects)
     
     auto_mask = get_arr_from_bools(masks, dataset)
     return auto_mask

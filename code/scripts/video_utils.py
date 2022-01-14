@@ -4,13 +4,13 @@ Util functions for converting frames to video and vice versa.
 import cv2
 import os
 
-def frames_to_video(video, results_path, imgs_path, save_path=None):
+def frames_to_video(video, results_path, imgs_path):
     """
-    Converts frames to video and save it into current folder if not specified.
+    Converts frames to video and save it into current folder.
 
     Args:
-        frames: (list) list of frames
         video: (str) which video we are working with
+
 
     """
     imgs_folder = os.path.join(imgs_path, video)
