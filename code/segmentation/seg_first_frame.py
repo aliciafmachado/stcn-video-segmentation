@@ -74,10 +74,7 @@ for vid in vid_list:
     pred_vid = path.join(pred_path, vid)
 
     # Find where to save the annotations calculated by the chosen algorithm
-    if dataset == 'davis2016' or dataset == 'davis2017':
-        img_path = path.join(imgs_path, vid, '00000.jpg')
-    else:
-        img_path = path.join(imgs_path, vid, '0000.jpg')
+    img_path = path.join(imgs_path, vid, '00000.jpg')
 
     if dataset == 'davis2016' or dataset == 'davis2017':
         ann_path = path.join(anns_path, vid, '00000.png')
