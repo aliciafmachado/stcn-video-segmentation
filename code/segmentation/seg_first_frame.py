@@ -61,7 +61,7 @@ if dataset == 'davis2016' or dataset == 'davis2017':
     imgs_path = path.join(imgs_path, 'JPEGImages', '480p')
 
 # We take the list of videos
-vid_list = [video for video in sorted(os.listdir(imgs_path)) if video.endswith('.mp4')]
+vid_list = [video for video in sorted(os.listdir(imgs_path)) if video.endswith('.jpg')]
 
 print('Segmenting first frames...')
 
