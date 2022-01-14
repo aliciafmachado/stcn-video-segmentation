@@ -21,16 +21,16 @@ if os.path.exists(args.smth_else_path):
 
 new_smth_else_path = os.path.join(os.path.dirname(args.smth_else_path), 'something-something')
 
-if not os.path.exists(os.path.join(new_smth_else_path, 'videos')):
-    os.makedirs(os.path.join(new_smth_else_path, 'videos'))
+if not os.path.exists(os.path.join(new_smth_else_path, 'JPEGImages')):
+    os.makedirs(os.path.join(new_smth_else_path, 'JPEGImages'))
 
 filenames = [f for f in os.listdir(new_smth_else_path) if not f == 'tracking_annotations' and
-        not f == 'videos' and not f.startswith('.')]
+        not f == 'JPEGImages' and not f.startswith('.')]
 
 for filename in filenames:
     os.rename(os.path.join(new_smth_else_path, filename), 
-            os.path.join(new_smth_else_path, 'videos', filename))
-    pth = os.path.join(new_smth_else_path, 'videos', filename)
+            os.path.join(new_smth_else_path, 'JPEGImages', filename))
+    pth = os.path.join(new_smth_else_path, 'JPEGImages', filename)
 
     if os.path.exists(os.path.join(pth, 'DONE')):
         os.remove(os.path.join(pth, 'DONE'))

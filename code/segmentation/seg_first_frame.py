@@ -10,6 +10,7 @@ import os
 from PIL import Image
 from seg_detectron2 import get_mask_detectron2
 import cv2
+import warnings
 
 """
 Arguments loading
@@ -25,6 +26,8 @@ parser.add_argument('--max_nb_objects', type=int,
                     default=-1)
 parser.add_argument('--threshold', help='interval [0,1]', default=0.7)
 parser.add_argument('--dataset', help= 'davis2017 or davis2016 or smth-smth', default='davis2017')
+# Here, we use an annotation from DAVIS 2017 to obtain the palette
+# You only need to set it if you running this with Something-Something dataset
 parser.add_argument('--palette_path', help='path to an image to extract the palette', default=None)
 
 args = parser.parse_args()
@@ -41,6 +44,12 @@ get_masks = {
     'detectron2': get_mask_detectron2,
 }
 
+# Set a warning if smth-smth is ran without palette_path
+if dataset == 'smth-smth' and args.palette_path == None:
+    warnings.warn("Please define a file where to extract the palette. "
+                           "Example: an annotation from DAVIS 2017 dataset. "
+                           "Otherwise, images will be simply black.")
+
 # If dataset is something-something, we can't limit annotations taking
 # the manual annotations into account
 if dataset == 'smth-smth':
@@ -49,7 +58,14 @@ if dataset == 'smth-smth':
 # We will save our annotations into a new folder called Auto_Annotations
 # List the directories in real path / ImageSets and create them in a new "Auto_Annotations" folder
 # Create folder if it doesn't exist yet
-pred_path = path.join(pred_path, 'Auto_Annotations')
+ann_folder_name = 'Auto_Annotations'
+
+# We set the folder name to Annotations so that
+# eval_generic.py works without modifications
+if dataset == 'smth-smth':
+  ann_folder_name = 'Annotations'
+
+pred_path = path.join(pred_path, ann_folder_name)
 if not path.exists(pred_path):
     os.makedirs(pred_path)
     if dataset == 'davis2016' or dataset == 'davis2017':
@@ -99,10 +115,9 @@ for vid in vid_list:
         palette = Image.open(path.expanduser(ann_path)).getpalette()
         get_palette = False
 
-    if dataset == 'smth-smth' and get_palette:
-      if args.palette_path == None:
-         # TODO(fix here)
-         # TODO(put default behavior to do masking as davis2016)
+    if dataset == 'smth-smth' and get_palette and args.palette_path != None:
+        palette = Image.open(path.expanduser(args.palette_path)).getpalette()
+        get_palette = False
 
     # Do the prediction using the algorithm selected
     masks_arr = get_masks[seg_algo](orig_img, gd_annotations, threshold=threshold, 
@@ -111,10 +126,9 @@ for vid in vid_list:
 
     # Save the first frame into the folder
     mask = Image.fromarray(masks_arr).convert("P")
-    if dataset == 'davis2017':
+    if dataset == 'davis2017' or (dataset == 'smth-smth' and 
+                                  args.palette_path != None):
         mask.putpalette(palette)
-    elif dataset == 'smth-smth':
-        mask.convert()
     
     mask.save(path.join(pred_vid, '00000.png'))
 
