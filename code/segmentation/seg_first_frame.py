@@ -26,7 +26,7 @@ parser.add_argument('--max_nb_objects', type=int,
                     default=-1)
 parser.add_argument('--annotations_folder', type=str, 
                     default='Annotations')
-parser.add_argument('--threshold', help='interval [0,1]', default=0.7)
+parser.add_argument('--threshold', help='interval [0,1]', default=0.7, type=float)
 parser.add_argument('--dataset', help= 'davis2017 or davis2016 or smth-smth', default='davis2017')
 # Here, we use an annotation from DAVIS 2017 to obtain the palette
 # You only need to set it if you running this with Something-Something dataset
