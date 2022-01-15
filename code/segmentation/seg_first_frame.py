@@ -24,6 +24,8 @@ parser.add_argument('--limit_annotations', help='True / False', default=True)
 parser.add_argument('--max_nb_objects', type=int,
                     help='Max number of objects. If specified, ignores limit_annotations and threshold arguments', 
                     default=-1)
+parser.add_argument('--annotations_folder', type=str, 
+                    default='Annotations')
 parser.add_argument('--threshold', help='interval [0,1]', default=0.7)
 parser.add_argument('--dataset', help= 'davis2017 or davis2016 or smth-smth', default='davis2017')
 # Here, we use an annotation from DAVIS 2017 to obtain the palette
@@ -63,7 +65,7 @@ ann_folder_name = 'Auto_Annotations'
 # We set the folder name to Annotations so that
 # eval_generic.py works without modifications
 if dataset == 'smth-smth':
-  ann_folder_name = 'Annotations'
+  ann_folder_name = args.annotations_folder
 
 pred_path = path.join(pred_path, ann_folder_name)
 if not path.exists(pred_path):
@@ -73,7 +75,7 @@ if not path.exists(pred_path):
 
 if dataset == 'davis2016' or dataset == 'davis2017':
     pred_path = path.join(pred_path, '480p')
-    anns_path = path.join(imgs_path, 'Annotations', '480p')
+    anns_path = path.join(imgs_path, args.annotations_folder, '480p')
     # We always use 480p in this code
     imgs_path = path.join(imgs_path, 'JPEGImages', '480p')
 
